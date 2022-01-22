@@ -19,10 +19,10 @@
         text-color="#fff"
         router
       >
-        <el-menu-item :route="{ name: 'Shouye' }" index="1-1">
+        <!-- <el-menu-item :route="{ name: 'Shouye' }" index="1-1">
           <i class="el-icon-s-home"></i>
           <span slot="title">首页</span>
-        </el-menu-item>
+        </el-menu-item> -->
         <el-submenu index="2">
           <template slot="title">
             <i class="el-icon-s-goods"></i>
@@ -33,16 +33,17 @@
           <!-- <el-menu-item :route="{ name: 'Shangpingpinglun' }" index="2-3"
             >商品评论</el-menu-item
           >-->
-          <el-menu-item :route="{ name: 'Yunfeimoban' }" index="2-4">运费模板</el-menu-item>
+          <!-- <el-menu-item :route="{ name: 'Yunfeimoban' }" index="2-4">运费模板</el-menu-item> -->
         </el-submenu>
         <el-submenu index="3">
           <template slot="title">
             <i class="el-icon-s-order"></i>
             <span>订单</span>
           </template>
-          <el-menu-item :route="{ name: 'Dingdanguanli' }" index="3-1">订单管理</el-menu-item>
+          <el-menu-item :route="{ name: 'Dingdanguanli' }" index="3-1">服务订单管理</el-menu-item>
+          <el-menu-item :route="{ name: 'ShopDingdanguanli' }" index="3-2">商品订单管理</el-menu-item>
         </el-submenu>
-        <el-submenu index="4">
+        <!-- <el-submenu index="4">
           <template slot="title">
             <i class="el-icon-s-ticket"></i>
             <span>营销</span>
@@ -58,7 +59,7 @@
             <span slot="title">卖场活动</span>
             <el-menu-item :route="{ name: 'Maichanghuodong' }" index="4-2-1">活动列表</el-menu-item>
           </el-submenu>
-        </el-submenu>
+        </el-submenu> -->
         <el-submenu index="5">
           <template slot="title">
             <i class="el-icon-s-custom"></i>
@@ -69,13 +70,13 @@
           <!-- <el-menu-item :route="{ name: 'Lianghaoliebiao' }" index="5-2">靓号列表</el-menu-item> -->
           <el-menu-item :route="{ name: 'Tixianliebiao' }" index="5-3">提现列表</el-menu-item>
         </el-submenu>
-        <el-submenu index="6">
+        <!-- <el-submenu index="6">
           <template slot="title">
             <i class="el-icon-share"></i>
             <span>分销</span>
           </template>
           <el-menu-item :route="{ name: 'Fenxiaoshezhi' }" index="6-1">分销设置</el-menu-item>
-        </el-submenu>
+        </el-submenu> -->
         <!-- <el-submenu index="7">
           <template slot="title">
             <i class="el-icon-s-check"></i>
@@ -106,12 +107,12 @@
             <i class="el-icon-s-tools"></i>
             <span>设置</span>
           </template>
-          <el-menu-item :route="{ name: 'Xiaoxiguanli' }" index="8-1">消息管理</el-menu-item>
+          <!-- <el-menu-item :route="{ name: 'Xiaoxiguanli' }" index="8-1">消息管理</el-menu-item> -->
           <el-menu-item :route="{ name: 'Qitashezhi' }" index="8-2">其他设置</el-menu-item>
           <!-- <el-menu-item :route="{ name: 'Lunbotushezhi' }" index="8-3">轮播图设置</el-menu-item> -->
           <el-menu-item :route="{ name: 'Lunbotuliebiao' }" index="8-4">轮播图列表</el-menu-item>
-          <el-menu-item :route="{ name: 'Kaipinyeshezhi' }" index="8-5">开屏页设置</el-menu-item>
-          <el-menu-item :route="{ name: 'Shujuzhongxin' }" index="8-6">数据中心</el-menu-item>
+          <!-- <el-menu-item :route="{ name: 'Kaipinyeshezhi' }" index="8-5">开屏页设置</el-menu-item> -->
+          <!-- <el-menu-item :route="{ name: 'Shujuzhongxin' }" index="8-6">数据中心</el-menu-item> -->
         </el-submenu>
         <el-submenu index="10">
           <template slot="title">
@@ -177,7 +178,14 @@ export default {
         this.$store.commit(
           "headerTit",
           `订单 / <span style="color: #515a61;
-        font-weight: 700;">订单管理</span>`
+        font-weight: 700;">服务订单管理</span>`
+        );
+      } else if (to.path == "/Dingdan/ShopDingdanguanli") {
+        this.menuActiveIndex = "3-2";
+        this.$store.commit(
+          "headerTit",
+          `订单 / <span style="color: #515a61;
+        font-weight: 700;">商品订单管理</span>`
         );
       } else if (to.path == "/Yingxiao/Pingtuanshangping") {
         this.menuActiveIndex = "4-1-1";

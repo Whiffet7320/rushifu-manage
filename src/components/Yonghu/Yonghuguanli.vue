@@ -61,7 +61,7 @@
                       <div class="item">用户创建时间：{{row.created_at}}</div>
                     </el-col>
                     <el-col :span="6">
-                      <div class="item">积分：{{ row.level }}</div>
+                      <div class="item">积分：{{ row.score }}</div>
                     </el-col>
                     <el-col :span="6">
                       <div class="item">性别：{{ row.user_info.gender == 1? '男' : '女' }}</div>
@@ -140,8 +140,8 @@
         <vxe-table :data="mingxiTableData">
           <vxe-table-column field="user_id" title="ID"></vxe-table-column>
           <vxe-table-column field="myPm" title="支出/获得"></vxe-table-column>
-          <vxe-table-column field="value" title="变动金额"></vxe-table-column>
-          <vxe-table-column field="after_money" title="变动后金额"></vxe-table-column>
+          <vxe-table-column field="value" title="变动金额(积分)"></vxe-table-column>
+          <vxe-table-column field="after_money" title="变动后金额(积分)"></vxe-table-column>
           <!-- <vxe-table-column field="mark" width="250" title="备注"></vxe-table-column> -->
           <!-- <vxe-table-column field="pay_way" width="120" title="支付方式"></vxe-table-column> -->
           <vxe-table-column field="created_at" title="时间"></vxe-table-column>
@@ -167,20 +167,14 @@
     >
       <div class="editForm">
         <el-form :model="editForm" ref="editForm" label-width="140px" class="demo-ruleForm">
-          <el-form-item label="用户等级：">
-            <el-input size="small" v-model="editForm.level"></el-input>
+          <el-form-item label="添加积分（+-）：">
+            <el-input size="small" v-model="editForm.score"></el-input>
           </el-form-item>
-          <el-form-item label="用户密码：">
-            <el-input size="small" v-model="editForm.pwd"></el-input>
-          </el-form-item>
-          <el-form-item label="用户自身的邀请码：">
-            <el-input size="small" v-model="editForm.uniqid"></el-input>
-          </el-form-item>
-          <el-form-item label="邀请人ID：">
-            <el-input size="small" v-model="editForm.spread_uid"></el-input>
+          <el-form-item label="添加金钱（+-）：">
+            <el-input size="small" v-model="editForm.money"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button size="small" type="primary" @click="submitForm">确定</el-button>
+            <el-button type="primary" size="small" @click="baocun">保存</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -196,7 +190,9 @@ export default {
       "yonghuguanliPage",
       "yonghuguanliPageSize",
       "zijinmingxiliebiaoPage",
-      "zijinmingxiliebiaoPageSize"
+      "zijinmingxiliebiaoPageSize",
+      'jifenfenPage',
+      'jifenfenPageSize',
     ])
   },
   watch: {
@@ -214,6 +210,14 @@ export default {
     },
     zijinmingxiliebiaoPageSize: function(pageSize) {
       this.$store.commit("zijinmingxiliebiaoPageSize", pageSize);
+      this.getData();
+    },
+    jifenfenPage: function(page) {
+      this.$store.commit("jifenfenPage", page);
+      this.getData();
+    },
+    jifenfenPageSize: function(pageSize) {
+      this.$store.commit("jifenfenPageSize", pageSize);
       this.getData();
     }
   },
@@ -236,12 +240,11 @@ export default {
       mingxiUser_id: "",
       editDialogVisible: false,
       editForm: {
-        level: "",
-        pwd: "",
-        uniqid: "",
-        spread_uid: ""
+        money:'',
+        score:'',
       },
-      editId: ""
+      editId: "",
+      rowUserId:'',
     };
   },
   created() {
@@ -274,6 +277,40 @@ export default {
       });
       this.mingxiTotal = res.data.total;
     },
+    async getMingxiData2() {
+      const res = await this.$api.usersIdScoreRecords({
+        id: this.mingxiUser_id,
+        page: this.zijinmingxiliebiaoPage,
+        limit: this.zijinmingxiliebiaoPageSize
+      });
+      console.log(res.data);
+      this.mingxiTableData = res.data.data;
+      this.mingxiTableData.forEach(ele => {
+        ele.myPm = ele.is_in == "1" ? "获得" : "支出";
+        ele.after_money = ele.after_score;
+      });
+      this.mingxiTotal = res.data.total;
+    },
+    async baocun(){
+      await this.$api.score({
+        value:this.editForm.score,
+        user_id:this.rowUserId
+      })
+      const res = await this.$api.money({
+        value:this.editForm.money == '' ? '0' : this.editForm.money,
+        user_id:this.rowUserId
+      })
+      if (res.code == 200) {
+        this.$message({
+          message: res.msg,
+          type: "success"
+        });
+        this.getData();
+        this.editDialogVisible = false;
+      } else {
+        this.$message.error(res.msg);
+      }
+    },
     async submitForm() {
       const res = await this.$api.updat_user_info({
         user_id: this.editId,
@@ -291,19 +328,24 @@ export default {
         this.$message.error(res.msg);
       }
     },
-    changeMingxiRadio() {
-      this.getMingxiData();
+    changeMingxiRadio(e) {
+      console.log(e)
+      if(e == 1){
+        this.$store.commit('zijinmingxiliebiaoPage',1);
+        this.getMingxiData();
+      }else{
+        this.$store.commit('zijinmingxiliebiaoPage',1);
+        this.getMingxiData2();
+      }
     },
     tabsHandleClick(tab, event) {
       console.log(tab, event);
     },
     toEdit(row) {
-      this.editForm = {
-        level: "",
-        pwd: "",
-        uniqid: "",
-        spread_uid: ""
-      };
+      console.log(row)
+      this.rowUserId = row.user_info.user_id;
+      this.editForm.money = '';
+      this.editForm.score = '';
       this.editId = row.user_id;
       this.editDialogVisible = true;
     },

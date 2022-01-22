@@ -598,7 +598,7 @@ import E from "wangeditor";
 import { mapState } from "vuex";
 export default {
   computed: {
-    ...mapState(["shopObj"])
+    ...mapState(["shopObj",'tabIndex'])
   },
   watch: {
     "qtszForm.ddsz": function() {
@@ -625,6 +625,7 @@ export default {
   },
   data() {
     return {
+      activeNameTab:'',
       content: "",
       ddsz: false,
       yjsz: false,
@@ -707,11 +708,15 @@ export default {
     };
   },
   created() {
+    console.log( this.tabIndex)
     this.getData();
   },
   methods: {
     async getData() {
-      const res = await this.$api.categories();
+      this.activeNameTab = this.tabIndex;
+      const res = await this.$api.categories({
+        type: this.activeNameTab == "1" ? "1" : "0"
+      });
       console.log(res);
       res.data.forEach(ele => {
         ele.value = ele.id;
@@ -992,7 +997,7 @@ export default {
           //这个结果就是url
           console.log(store)
           // var oss_imgurl = client.signatureUrl(store);
-          var oss_imgurl = `http://${myData.bucket}.${myData.url}/${store}`
+          var oss_imgurl = `https://${myData.bucket}.${myData.url}/${store}`
           if (this.imgStatus == "xqt") {
             this.$set(this.ruleForm, "detail_img", oss_imgurl);
           } else if (this.imgStatus == "zt") {

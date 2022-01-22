@@ -58,24 +58,48 @@
               <template>
                 <div class="xiala">
                   <el-row :gutter="20">
-                    <el-col :span="6">
-                      <div class="item">上级邀请人邀请码：{{row.parent_uniqid}}</div>
+                    <el-col :span="8">
+                      <div class="item">
+                        身份证正面：
+                        <el-image
+                          v-if="row.identity_card"
+                          :src="row.identity_card.image_front"
+                          fit="fill"
+                          style="width: 240px; height: 120px;transform: translateY(-6px);"
+                        >
+                          <div slot="error" class="image-slot">
+                            <i class="el-icon-picture-outline"></i>
+                          </div>
+                        </el-image>
+                      </div>
                     </el-col>
-                    <el-col :span="6">
-                      <div class="item">邀请总人数：{{row.spread_count}}</div>
+                    <el-col :span="8">
+                      <div class="item">
+                        身份证反面：
+                        <el-image
+                          v-if="row.identity_card"
+                          :src="row.identity_card.image_reverse"
+                          fit="fill"
+                          style="width: 240px; height: 120px;transform: translateY(-6px);"
+                        >
+                          <div slot="error" class="image-slot">
+                            <i class="el-icon-picture-outline"></i>
+                          </div>
+                        </el-image>
+                      </div>
                     </el-col>
-                    <el-col :span="6">
-                      <div class="item">等级：{{ row.level }}</div>
+                    <el-col :span="8">
+                      <div class="item">定位地区：{{ row.craftsman_info.address }}</div>
                     </el-col>
                   </el-row>
                   <div style="margin-top: 16px"></div>
                   <el-row :gutter="20">
-                    <el-col :span="6">
-                      <div class="item">积分：{{row.integral}}</div>
+                    <el-col :span="10">
+                      <div class="item">所选技能：{{row.suoxuanjineng}}</div>
                     </el-col>
-                    <el-col :span="6">
+                    <!-- <el-col :span="6">
                       <div class="item">会员过期时间：{{row.myOverdue_vip_time}}</div>
-                    </el-col>
+                    </el-col>-->
                   </el-row>
                 </div>
               </template>
@@ -102,14 +126,16 @@
           <vxe-table-column title="操作状态" width="200">
             <template slot-scope="scope">
               <div class="flex">
-                <el-button size="small" @click="toEdit(scope.row)" type="text">编辑</el-button>
+                <!-- <el-button size="small" @click="toEdit(scope.row)" type="text">编辑</el-button> -->
                 <el-button size="small" @click="seeMingxi(scope.row)" type="text">查看明细</el-button>
-                <el-button
-                  size="small"
-                  :disabled="!scope.row.identity_card.status == 0"
-                  @click="tongguoshenghe(scope.row)"
-                  type="text"
-                >通过审核</el-button>
+                <template v-if="scope.row.identity_card">
+                  <el-button
+                    size="small"
+                    :disabled="!scope.row.identity_card.status == 0"
+                    @click="tongguoshenghe(scope.row)"
+                    type="text"
+                  >通过审核</el-button>
+                </template>
               </div>
             </template>
           </vxe-table-column>
@@ -256,7 +282,17 @@ export default {
       this.total = res.data.total;
       this.tableData = res.data.data;
       this.tableData.forEach(ele => {
-        ele.myStatus = ele.identity_card.status == 0 ? "未审核" : "已审核";
+        if (ele.identity_card) {
+          ele.myStatus = ele.identity_card.status == 0 ? "未审核" : "已审核";
+        } else {
+          ele.myStatus = "未验证身份";
+        }
+        ele.suoxuanjineng = "";
+        if (ele.craftsman_info.skills) {
+          ele.craftsman_info.skills.forEach(item => {
+            ele.suoxuanjineng += `${item.skill_name}-${item.name} `;
+          });
+        }
       });
     },
     async getMingxiData() {
@@ -321,7 +357,7 @@ export default {
       console.log(res);
       if (res.code == 200) {
         this.$message({
-          message: '已通过',
+          message: "已通过",
           type: "success"
         });
         this.getData();
@@ -435,6 +471,12 @@ export default {
       padding: 10px 20px;
       .item {
         font-size: 12px;
+        display: flex;
+        .rowImg {
+          transform: translateY(-6px);
+          width: 240px;
+          height: 120px;
+        }
       }
     }
     .flex {

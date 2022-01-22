@@ -47,7 +47,11 @@ const routes = [{
         path: 'Dingdanguanli',
         name: 'Dingdanguanli',
         component: () => import('./components/Dingdan/Dingdanguanli'),
-    }, ]
+    },{
+        path: 'ShopDingdanguanli',
+        name: 'ShopDingdanguanli',
+        component: () => import('./components/Dingdan/ShopDingdanguanli'),
+    } ]
 }, {
     path: '/Wenzhang',
     name: 'Wenzhang',

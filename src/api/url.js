@@ -1,7 +1,7 @@
 export default {
     // 如师傅
-    baseUrl:'http://192.168.50.96:8001',
-    // baseUrl:'http://rushifu.5laoye.com',
+    // baseUrl:'http://192.168.50.96:8001',
+    baseUrl:'https://rushifu.hxqhhhh.shop/',
     login: '/admin/login', //登录
     users:'/admin/users',//用户列表
     usersIdMoneyRecords:'/admin/users',//用户积分列表
@@ -28,6 +28,9 @@ export default {
     itemAll:'/admin/items-all',//全部商品
     turntableItem:'/admin/turntable-item',//奖品列表
     awards:'/admin/awards',//中奖列表
+    goodsOrder:'/admin/goods-order',//商品订单列表
+    money:'/admin/money',//修改用户金钱
+    score:'/admin/score',//修改用户积分
     // 模板
     productList:'/admin/product/list',//商品列表
     loginInfo:'/admin/login/info',

@@ -7,22 +7,18 @@ axios.defaults.headers['Content-Type'] = "application/json;charset=UTF-8";
 let myPost = axios.create({
     baseURL: urls.baseUrl,
     method: 'post',
-    timeout: 1000,
 })
 let myGet = axios.create({
     baseURL: urls.baseUrl,
     method: 'get',
-    timeout: 1000,
 })
 let myDelete = axios.create({
     baseURL: urls.baseUrl,
     method: 'delete',
-    timeout: 1000,
 })
 let myPut = axios.create({
     baseURL: urls.baseUrl,
     method: 'put',
-    timeout: 1000,
 })
 
 myPut.interceptors.request.use(config => {
@@ -291,9 +287,20 @@ export default {
             }
         })
     },
-    categories() {
+    usersIdScoreRecords(obj) {
+        return myGet({
+            url: `${urls.usersIdMoneyRecords}/${obj.id}/score-records`,
+            params: {
+                ...obj
+            }
+        })
+    },
+    categories(obj) {
         return myGet({
             url: urls.categories,
+            params:{
+                ...obj
+            }
         })
     },
     addCategories(obj) {
@@ -307,6 +314,22 @@ export default {
     updateCategories(obj, id) {
         return myPut({
             url: `${urls.updateCategories}/${id}`,
+            data: {
+                ...obj
+            }
+        })
+    },
+    score(obj) {
+        return myPut({
+            url: `${urls.score}`,
+            data: {
+                ...obj
+            }
+        })
+    },
+    money(obj) {
+        return myPut({
+            url: `${urls.money}`,
             data: {
                 ...obj
             }
@@ -334,6 +357,11 @@ export default {
             data: {
                 ...obj
             }
+        })
+    },
+    deleteItems(id){
+        return myDelete({
+            url: `${urls.items}/${id}`,
         })
     },
     uploadToken() {
@@ -602,6 +630,22 @@ export default {
     upDateAwards(obj, id) {
         return myPut({
             url: `${urls.awards}/${id}`,
+            data: {
+                ...obj
+            }
+        })
+    },
+    goodsOrder(obj) {
+        return myGet({
+            url: urls.goodsOrder,
+            params: {
+                ...obj
+            }
+        })
+    },
+    goodsOrderFahuo(obj, id) {
+        return myPut({
+            url: `${urls.goodsOrder}/${id}/delivery`,
             data: {
                 ...obj
             }

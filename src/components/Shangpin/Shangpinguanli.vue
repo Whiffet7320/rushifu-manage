@@ -5,7 +5,7 @@
       <div class="tit2">
         <el-tabs v-model="activeName" @tab-click="tabsHandleClick">
           <el-tab-pane label="如商城商品" name="1"></el-tab-pane>
-          <el-tab-pane label="报价商品" name="2"></el-tab-pane>
+          <el-tab-pane label="服务商品" name="2"></el-tab-pane>
         </el-tabs>
       </div>
     </div>
@@ -13,10 +13,17 @@
       <div class="myForm">
         <el-form :inline="true" :model="formInline" class="demo-form-inline">
           <el-form-item label="商品分类：">
-            <el-cascader size="small" :options="options" :props="{ checkStrictly: true }" clearable></el-cascader>
+            <el-select size='small' v-model="formInline.category_id" placeholder="请选择">
+              <el-option
+                v-for="item in options"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="商品搜索：">
-            <el-input size="small" v-model="formInline.user" placeholder="商品搜索"></el-input>
+            <el-input size="small" v-model="formInline.name" placeholder="商品搜索"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button size="small" type="primary" @click="onSubmit">查询</el-button>
@@ -104,8 +111,8 @@
             <template slot-scope="scope">
               <div class="flex">
                 <el-button size="small" @click="toEditShop(scope.row)" type="text">编辑</el-button>
-                <el-button size="small" @click="toEditShop(scope.row)" type="text">查看评论</el-button>
-                <el-button size="small" @click="toEditShop(scope.row)" type="text">删除</el-button>
+                <!-- <el-button size="small" @click="toEditShop(scope.row)" type="text">查看评论</el-button> -->
+                <el-button size="small" @click="toDelShop(scope.row)" type="text">删除</el-button>
               </div>
             </template>
           </vxe-table-column>
@@ -129,7 +136,11 @@
 import { mapState } from "vuex";
 export default {
   computed: {
-    ...mapState(["shangpingliebiaoPage", "shangpingliebiaoPageSize"])
+    ...mapState([
+      "shangpingliebiaoPage",
+      "shangpingliebiaoPageSize",
+      "tabIndex"
+    ])
   },
   watch: {
     shangpingliebiaoPage: function(page) {
@@ -139,14 +150,19 @@ export default {
     shangpingliebiaoPageSize: function(pageSize) {
       this.$store.commit("shangpingliebiaoPageSize", pageSize);
       this.getData();
+    },
+    tabIndex: function() {
+      this.activeName = this.tabIndex;
+      console.log(this.activeName);
+      this.getData();
     }
   },
   data() {
     return {
-      activeName: "2",
+      activeName: "1",
       formInline: {
-        user: "",
-        region: ""
+        category_id: "",
+        name: ""
       },
       options: [],
       tableData: [],
@@ -158,20 +174,29 @@ export default {
   },
   methods: {
     async getData() {
+      const res2 = await this.$api.categories({
+        type: this.activeName == "1" ? "1" : "0"
+      });
+      console.log(res2);
+      this.options = res2.data;
+      this.activeName = this.tabIndex;
       const res = await this.$api.items({
         limit: this.shangpingliebiaoPageSize,
-        page: this.shangpingliebiaoPage
+        page: this.shangpingliebiaoPage,
+        is_goods: this.activeName == "1" ? "1" : "0",
+        category_id: this.formInline.category_id,
+        name: this.formInline.name
       });
       console.log(res.data.data);
       this.total = res.data.total;
       this.tableData = res.data.data;
       this.tableData.forEach(ele => {
         ele.myStatus = ele.status == "1" ? true : false;
-        ele.prev_images.forEach(item=>{
-          if(!item){
-            ele.prev_images.pop()
+        ele.prev_images.forEach(item => {
+          if (!item) {
+            ele.prev_images.pop();
           }
-        })
+        });
       });
     },
     // 开关（上架/下架）
@@ -196,11 +221,26 @@ export default {
       this.$store.commit("shopObj", row);
       this.$router.push({ name: "Tianjiashangping" });
     },
-    tabsHandleClick(tab, event) {
-      console.log(tab, event);
+    async toDelShop(row) {
+      console.log(row);
+      const res = await this.$api.deleteItems(row.id)
+      if (res.code == 200) {
+        this.$message({
+          message: res.msg,
+          type: "success"
+        });
+        this.getData();
+      }
+    },
+    tabsHandleClick(tab) {
+      console.log(tab.index);
+      this.$store.commit("tabIndex", (Number(tab.index) + 1).toString());
+      this.formInline.category_id = '';
+      this.formInline.name = '';
     },
     onSubmit() {
       console.log("submit!");
+      this.getData()
     },
     toAddShop() {
       this.$store.commit("shopObj", null);

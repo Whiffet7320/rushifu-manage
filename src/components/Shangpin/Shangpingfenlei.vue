@@ -2,6 +2,12 @@
   <div class="index">
     <div class="nav1">
       <div class="tit1">商品分类</div>
+      <div class="tit2">
+        <el-tabs v-model="activeName" @tab-click="tabsHandleClick">
+          <el-tab-pane label="如商城商品分类" name="1"></el-tab-pane>
+          <el-tab-pane label="服务商品分类" name="2"></el-tab-pane>
+        </el-tabs>
+      </div>
     </div>
     <div class="nav2">
       <!-- <div class="myForm">
@@ -167,7 +173,17 @@
           </el-row>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="状态" prop="is_show">
+              <el-form-item label="类型">
+                <el-radio-group v-model="addForm.type">
+                  <el-radio label="服务商品"></el-radio>0
+                  <el-radio label="商城商品"></el-radio>1
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="状态">
                 <el-radio-group v-model="addForm.is_show">
                   <el-radio label="显示"></el-radio>1
                   <el-radio label="隐藏"></el-radio>0
@@ -198,9 +214,21 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
+  computed: {
+    ...mapState(["tabShopIndex"])
+  },
+  watch: {
+    tabShopIndex: function() {
+      this.activeName = this.tabShopIndex;
+      console.log(this.activeName);
+      this.getData();
+    }
+  },
   data() {
     return {
+      activeName: "1",
       searchForm: {
         pid: "",
         status: "",
@@ -211,7 +239,8 @@ export default {
       addForm: {
         id: "",
         name: "",
-        sort: ""
+        sort: "",
+        type: ""
       },
       rules: {
         name: [{ required: true, message: "请输入分类名称", trigger: "blur" }],
@@ -227,7 +256,10 @@ export default {
   },
   methods: {
     async getData() {
-      const res = await this.$api.categories();
+      this.activeName = this.tabShopIndex;
+      const res = await this.$api.categories({
+        type: this.activeName == "1" ? "1" : "0"
+      });
       console.log(res);
       this.tableData = res.data;
       this.tableData.forEach(ele => {
@@ -242,11 +274,14 @@ export default {
     // 开关（显示/隐藏）
     async changeKG(row) {
       console.log(row);
-      const res = await this.$api.updateCategories({
-        name:row.name,
-        sort:row.sort,
-        status: row.is_showKG == true ? "1" : "0"
-      },row.id);
+      const res = await this.$api.updateCategories(
+        {
+          name: row.name,
+          sort: row.sort,
+          status: row.is_showKG == true ? "1" : "0"
+        },
+        row.id
+      );
       if (res.code == 200) {
         this.$message({
           message: res.msg,
@@ -255,6 +290,10 @@ export default {
         this.addDialogVisible = false;
         this.getData();
       }
+    },
+    tabsHandleClick(tab) {
+      console.log(tab.index);
+      this.$store.commit("tabShopIndex", (Number(tab.index) + 1).toString());
     },
     searchOnSubmit() {
       console.log(this.searchForm);
@@ -297,7 +336,10 @@ export default {
           if (this.addForm.id == "") {
             // 新增
             const res = await this.$api.addCategories({
-              ...this.addForm
+              name: this.addForm.name,
+              sort: this.addForm.sort,
+              status: this.addForm.is_show == "隐藏" ? "0" : "1",
+              type: this.addForm.type == "商城商品" ? "1" : "0",
             });
             if (res.code == 200) {
               this.$message({
@@ -313,7 +355,8 @@ export default {
               {
                 name: this.addForm.name,
                 sort: this.addForm.sort,
-                status: this.addForm.is_show == "隐藏" ? "0" : "1"
+                status: this.addForm.is_show == "隐藏" ? "0" : "1",
+                type: this.addForm.type == "商城商品" ? "1" : "0",
               },
               this.addForm.id
             );

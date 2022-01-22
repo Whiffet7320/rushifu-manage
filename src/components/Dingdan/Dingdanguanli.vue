@@ -1,7 +1,7 @@
 <template>
   <div class="index">
     <div class="nav1">
-      <div class="tit1">订单管理</div>
+      <div class="tit1">服务订单管理</div>
       <div class="tit2">
         <!-- <el-tabs v-model="activeName" @tab-click="tabsHandleClick">
           <el-tab-pane label="全部订单" name="1"></el-tab-pane>
